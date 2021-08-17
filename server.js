@@ -1,10 +1,14 @@
 const express = require('express');
-const connectDB = require('./config/db');
+const connectDBmySQL = require('./config/mysqldb');
 
 const app = express();
 
-// Connect Database
-connectDB();
+// Connect Database (MySQL)
+// Test DB
+connectDBmySQL
+  .authenticate()
+  .then(() => console.log('MySQL Database connected'))
+  .catch((err) => console.log('Error: ' + err));
 
 // Init Middleware
 app.use(express.json({ extended: false }));

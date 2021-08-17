@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const connectDBmySQL = require('../config/mysqldb');
 const { body, validationResult } = require('express-validator');
 
 const User = require('../modules/User');
@@ -15,6 +16,8 @@ router.post(
   [
     // name must be filled
     body('name', 'Please add name').not().isEmpty(),
+    // phone must be filled
+    body('phone', 'Please add phone number').not().isEmpty(),
     // email must be valid
     body('email', 'Please include a valid email').isEmail(),
     // password must be at least 6 chars long
@@ -30,18 +33,25 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, phone, email, password } = req.body;
 
     try {
       //verifies if that email already exists
-      let user = await User.findOne({ email });
+      let user = await User.findAll({
+        where: {
+          email,
+        },
+      });
+
+      console.log(user);
+      //let user = await User.findOne({ email });
 
       if (user) {
         return res.status(400).json({ msg: 'User already exists' });
       }
 
       // create a new instance of User
-      user = new User({ name, email, password });
+      user = new User({ name, phone, email, password });
 
       // encrypt password
       const salt = await bcrypt.genSalt(10);
